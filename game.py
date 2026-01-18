@@ -10,7 +10,7 @@ class Game:
         for player in self.players:
             player.deal_cards(self.deck)
 
-        # Regla inicial Skyjo: cada jugador revela 2 cartas
+        # First rule: each player reveals 2 Cards
         for player in self.players:
             player.reveal_card(0, 0)
             player.reveal_card(1, 1)

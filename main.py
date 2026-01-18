@@ -1,10 +1,24 @@
 from game import Game
 
+# Only can play between 2 to 4 players
+def ask_number_of_players(min_players=2, max_players=4):
+    while True:
+        try:
+            num = int(input("Número de jugadores: "))
+            if min_players <= num <= max_players:
+                return num
+            else:
+                print(f"El número debe estar entre {min_players} y {max_players}.")
+        except ValueError:
+            print("Solo se puede jugar de 2 a 4 jugadores.")
+
+# Start game
 def main():
-    num_players = int(input("Número de jugadores: "))
+    num_players = ask_number_of_players()
     game = Game(num_players)
     game.setup()
     game.display()
 
+# Init game
 if __name__ == "__main__":
     main()
