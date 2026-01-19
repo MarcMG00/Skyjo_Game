@@ -24,3 +24,12 @@ class Player:
         for i, row in enumerate(self.grid):
             row_str = " ".join(str(card) for card in row)
             print(f"{i+1} {row_str}")
+
+    # Calculate Initial sum from both Card revealed to order players
+    def initial_revealed_sum(self):
+        total = 0
+        for row in self.grid:
+            for card in row:
+                if card.revealed:
+                    total += card.value
+        return total
