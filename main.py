@@ -19,6 +19,10 @@ def main():
     game.setup()
     game.display()
 
+    # Infinite boucles of turns (for now)
+    while True:
+        game.play_turn()
+
 # Init game
 if __name__ == "__main__":
     main()
