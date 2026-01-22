@@ -50,3 +50,27 @@ class Player:
             return True
 
         return False
+    
+    # Check if a player has revelead all his Cards (it starts final turn until it comes to this player again)
+    def has_all_cards_revealed(self):
+        for row in self.grid:
+            for card in row:
+                if not card.revealed and not card.discarded:
+                    return False
+        return True
+    
+    # Reveal all Cards (when final turn has ended)
+    def reveal_all_cards(self):
+        for row in self.grid:
+            for card in row:
+                if not card.discarded:
+                    card.reveal()
+
+    # Do sum of total points of the round (when final turn has ended)
+    def round_score(self):
+        total = 0
+        for row in self.grid:
+            for card in row:
+                if not card.discarded:
+                    total += card.value
+        return total

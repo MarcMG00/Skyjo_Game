@@ -8,6 +8,9 @@ class Game:
         self.players = [Player(i + 1) for i in range(num_players)]
         self.current_player_index = 0
 
+        self.round_ending_player = None  # player that starts the final turn of the current round
+        self.round_active = True
+
     def setup(self):
         for player in self.players:
             player.deal_cards(self.deck)
@@ -51,6 +54,31 @@ class Game:
         index = self.players.index(starting_player)
         self.players = self.players[index:] + self.players[:index]
 
+    # Start of the game
+    def play(self):
+        print("\nComienza la partida")
+
+        while True:
+            self.round_active = True
+            self.round_ending_player = None
+
+            while self.round_active:
+                self.play_turn()
+
+                if self.is_round_over():
+                    self.round_active = False
+
+            self.end_round()
+
+            # Game ends when a player reaches 100 points
+            if any(player.score >= 100 for player in self.players):
+                print("\nFin de la partida")
+                self.show_final_scores()
+                return
+
+            # New round
+            self.start_new_round()
+
     # Start turns
     def play_turn(self):
         current_player = self.players[self.current_player_index]
@@ -85,8 +113,40 @@ class Game:
         # Show again all player's Cards
         self.display()
 
+        # ¿Current player has started the end of the turn of current round?
+        if self.round_ending_player is None and current_player.has_all_cards_revealed():
+            print(f"\nEl Jugador {current_player.number} ha activado el fin de la tanda")
+            self.round_ending_player = current_player
+
         # Next player
         self.next_player()
+
+    # Reintialize all vars to start new round
+    def start_new_round(self):
+        print("\nComienza una nueva tanda")
+
+        self.deck = Deck()
+        self.discard_pile = []
+
+        for player in self.players:
+            player.deal_cards(self.deck)
+
+            # reset visual state
+            for row in player.grid:
+                for card in row:
+                    card.revealed = False
+                    card.discarded = False
+
+            player.reveal_card(0, 0)
+            player.reveal_card(1, 1)
+
+        self.determine_starting_player()
+        self.current_player_index = 0
+
+        # Initial Card from deiscarded deck
+        first_discard = self.deck.draw()
+        first_discard.reveal()
+        self.discard_pile.append(first_discard)
 
     # Option 1 - Flip one of Player's Card
     def flip_own_card(self, player):
@@ -218,3 +278,44 @@ class Game:
             self.deck.cards = self.discard_pile
             self.discard_pile = [top_discard] # puts last Card from discarded deck
             self.deck.shuffle()
+
+    # Gets when it really ends the final turn of the current round
+    def is_round_over(self):
+        if self.round_ending_player is None:
+            return False
+
+        # Turn ends when it comes to the player that started it
+        return self.players[self.current_player_index] == self.round_ending_player
+    
+    # Ends the round
+    def end_round(self):
+        print("\nFin de la tanda")
+
+        # Reveal all the Cards from players
+        for player in self.players:
+            player.reveal_all_cards()
+
+        self.display()
+
+        # Calculate scores
+        round_scores = {}
+        for player in self.players:
+            score = player.round_score()
+            round_scores[player] = score
+            print(f"Jugador {player.number} suma {score}")
+
+        # If player that started the end of round, doesn't have the min score => duplicates his total score of the round
+        min_score = min(round_scores.values())
+        ending_player_score = round_scores[self.round_ending_player]
+
+        if ending_player_score > min_score:
+            print(
+                f"El Jugador {self.round_ending_player.number} no tiene la menor suma "
+                f"({ending_player_score} > {min_score}), su puntuación se duplica"
+            )
+            round_scores[self.round_ending_player] *= 2
+
+        # Adds the score to total score of each player
+        for player, score in round_scores.items():
+            player.score += score
+            print(f"Jugador {player.number} total : {player.score}")
