@@ -25,7 +25,7 @@ class Game:
         first_discard.reveal()
         self.discard_pile.append(first_discard)
 
-        print(f"\nCarta inicial del descarte: {first_discard.value}")
+        print(f"\nCarta inicial del descarte : {first_discard.value}")
 
     # Show player's Cards
     def display(self):
@@ -60,7 +60,7 @@ class Game:
         current_player.display()
 
         top_discard = self.discard_pile[-1]
-        print(f"Carta visible del descarte: {top_discard.value}")
+        print(f"Carta visible del descarte : {top_discard.value}")
 
         while True:
             print("\nElige una acción:")
@@ -92,8 +92,8 @@ class Game:
     def flip_own_card(self, player):
         while True:
             try:
-                row = int(input("Fila (1-3): ")) - 1
-                col = int(input("Columna (1-4): ")) - 1
+                row = int(input("Fila (1-3) : ")) - 1
+                col = int(input("Columna (1-4) : ")) - 1
 
                 if row not in range(3) or col not in range(4):
                     print("Fuera de rango.")
@@ -105,13 +105,18 @@ class Game:
                     continue
 
                 card.reveal()
-                print(f"Carta revelada: {card.value}")
+                print(f"Carta revelada : {card.value}")
+
+                # Check for col if can be discarded
+                if player.check_and_discard_column(col):
+                    print("Columna descartada ;)")
+
                 return
 
             except ValueError:
                 print("Entrada inválida.")
 
-    # Option 2 - Swap a Card from descarted deck
+    # Option 2 - Swap a Card from descarded deck
     def swap_with_discard(self, player):
         discard_card = self.draw_from_discard()
 
@@ -121,18 +126,21 @@ class Game:
         self.add_to_discard(player_card)
         discard_card.reveal()
         player.grid[row][col] = discard_card
-
         print(f"Cambiada por carta {discard_card.value}")
+
+        # Check for col if can be discarded
+        if player.check_and_discard_column(col):
+            print("Columna descartada ;)")
 
     # Option 3 - Draw a Card from principal deck and do something
     def draw_from_deck_action(self, player):
         card = self.draw_from_deck()
         card.reveal()
 
-        print(f"Has robado: {card.value}")
+        print(f"Has robado : {card.value}")
 
         while True:
-            choice = input("1 - Cambiarla | 2 - Descartarla: ")
+            choice = input("1 - Cambiarla | 2 - Descartarla : ")
 
             if choice == "1":
                 row, col = self.ask_position(player)
@@ -140,6 +148,11 @@ class Game:
 
                 self.add_to_discard(old_card)
                 player.grid[row][col] = card
+
+                # Check for col if can be discarded
+                if player.check_and_discard_column(col):
+                    print("Columna descartada ;)")
+
                 return
 
             elif choice == "2":
@@ -153,13 +166,19 @@ class Game:
     def ask_position(self, player):
         while True:
             try:
-                row = int(input("Fila (1-3): ")) - 1
-                col = int(input("Columna (1-4): ")) - 1
+                row = int(input("Fila (1-3) : ")) - 1
+                col = int(input("Columna (1-4) : ")) - 1
 
-                if row in range(3) and col in range(4):
-                    return row, col
-                else:
+                if row not in range(3) or col not in range(4):
                     print("Fuera de rango.")
+                    continue
+
+                card = player.grid[row][col]
+                if card.discarded:
+                    print("Esa carta está descartada. Elige otra.")
+                    continue
+
+                return row, col
 
             except ValueError:
                 print("Entrada inválida.")
@@ -173,7 +192,7 @@ class Game:
         self.reshuffle_if_needed()
         return self.deck.draw()
 
-    # Get Card from above of discarted Cards
+    # Get Card from above of discarded Cards
     def draw_from_discard(self):
         if not self.discard_pile:
             return None
@@ -184,18 +203,18 @@ class Game:
         card.reveal()
         self.discard_pile.append(card)
 
-    # If no more Cards on principal deck, set new deck with discarted pile (ans shuffle it)
+    # If no more Cards on principal deck, set new deck with discarded pile (ans shuffle it)
     def reshuffle_if_needed(self):
         if not self.deck.cards:
             print("Rebarajando descartes...")
 
-            # Leave only last Card from discarted deck
+            # Leave only last Card from discarded deck
             top_discard = self.discard_pile.pop()
 
-            # Hide all Cards from discarted pile
+            # Hide all Cards from discarded pile
             for card in self.discard_pile:
                 card.hide()
 
             self.deck.cards = self.discard_pile
-            self.discard_pile = [top_discard] # puts last Card from discarted deck
+            self.discard_pile = [top_discard] # puts last Card from discarded deck
             self.deck.shuffle()
