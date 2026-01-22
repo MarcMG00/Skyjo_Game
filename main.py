@@ -1,5 +1,6 @@
 from game import Game
 
+# to start a Console Game => command : "python main.py"
 # Only can play between 2 to 4 players
 def ask_number_of_players(min_players=2, max_players=4):
     while True:
@@ -19,9 +20,8 @@ def main():
     game.setup()
     game.display()
 
-    # Infinite boucles of turns (for now)
-    while True:
-        game.play_turn()
+    # Starts game
+    game.play()
 
 # Init game
 if __name__ == "__main__":
