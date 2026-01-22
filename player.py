@@ -33,3 +33,20 @@ class Player:
                 if card.revealed:
                     total += card.value
         return total
+    
+    # Discard Cards from a colum if are the same number
+    def check_and_discard_column(self, col_index: int):
+        column = [self.grid[row][col_index] for row in range(3)]
+
+        # Cannot discard until they are not revealed or discarded
+        if any(not card.revealed or card.discarded for card in column):
+            return False
+
+        values = [card.value for card in column]
+
+        if values[0] == values[1] == values[2]:
+            for card in column:
+                card.discard()
+            return True
+
+        return False
