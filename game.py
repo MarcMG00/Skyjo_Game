@@ -111,7 +111,7 @@ class Game:
                 print("Opción inválida.")
 
         # Show again all player's Cards
-        self.display()
+        # self.display()
 
         # ¿Current player has started the end of the turn of current round?
         if self.round_ending_player is None and current_player.has_all_cards_revealed():
