@@ -217,6 +217,9 @@ class Game:
 
             elif choice == "2":
                 self.add_to_discard(card)
+                # If player discard the card => has to flip a Card
+                print("Dado que descartas la carta, tienes que girar una tuya")
+                self.flip_own_card(player)
                 return
 
             else:
